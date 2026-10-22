@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Game & Ad Portal</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: #1e293b;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 90vh;
+        }
+        header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .wallet-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .balance-text {
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+        .balance-amount {
+            font-size: 22px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+        .notice-banner {
+            background-color: #b45309;
+            color: #fef3c7;
+            padding: 10px 15px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
+            border-bottom: 2px solid #f59e0b;
+        }
+        nav {
+            display: flex;
+            background-color: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+        nav button {
+            flex: 1;
+            padding: 12px 5px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        nav button.active {
+            color: #38bdf8;
+            border-bottom: 3px solid #38bdf8;
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+        main {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-success {
+            background-color: #16a34a;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #d97706;
+            color: white;
+        }
+        .game-card {
+            background-color: #334155;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .game-title {
+            font-weight: bold;
+            font-size: 15px;
+            color: #f1f5f9;
+        }
+        .game-desc {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+        .game-area {
+            background-color: #0f172a;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #cbd5e1;
+            margin-bottom: 5px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background-color: #0f172a;
+            color: white;
+            font-size: 14px;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.3s;
+        }
+        .modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-content {
+            background-color: #1e293b;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            width: 85%;
+            max-width: 350px;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+        .grid-game {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .grid-card {
+            background-color: #334155;
+            height: 70px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .grid-card.flipped {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h2 style="font-size: 18px;">মিনি গেম পোর্টাল</h2>
+        <div class="wallet-card">
+            <div>
+                <div class="balance-text">আপনার মোট ব্যালেন্স</div>
+                <div class="balance-amount"><span id="userBalance">0</span> ৳</div>
+            </div>
+            <button class="btn btn-warning" style="width: auto; padding: 6px 12px; margin:0;" onclick="switchTab('withdraw')">উইথড্র</button>
+        </div>
+    </header>
+
+    <div id="processingNotice" class="notice-banner">
+        ⚠️ আপনার একটি উইথড্রয়াল রিকোয়েস্ট প্রসেসিংয়ে আছে। এটি সম্পন্ন হতে ১০ দিন সময় লাগবে।
+    </div>
+
+    <nav>
+        <button id="nav-games" class="active" onclick="switchTab('games')">🎮 গেমস</button>
+        <button id="nav-watch" onclick="switchTab('watch')">📺 অ্যাড দেখুন</button>
+        <button id="nav-withdraw" onclick="switchTab('withdraw')">৳ উইথড্র</button>
+        <button id="nav-profile" onclick="switchTab('profile')">👤 প্রোফাইল</button>
+    </nav>
+
+    <main>
+        <!-- Tab 1: Games -->
+        <div id="tab-games" class="tab-content active">
+            <h3 style="margin-bottom: 10px; font-size: 15px; color: #38bdf8;">খেলুন এবং রিওয়ার্ড জিতুন</h3>
+            
+            <div class="game-card">
+                <div>
+                    <div class="game-title">১. স্টার ক্যাচার</div>
+                    <div class="game-desc">তারা ধরুন ও পয়েন্ট বাড়ান</div>
+                </div>
+                <button class="btn btn-primary" style="width: auto; padding: 6px 15px;" onclick="startGame(1)">খেলুন</button>
+            </div>
+
+            <div class="game-card">
+                <div>
+                    <div class="game-title">২. মেমোরি ম্যাচ</div>
+                    <div class="game-desc">কার্ড মেলাুন এবং ব্রেইন টেস্ট করুন</div>
+                </div>
+                <button class="btn btn-primary" style="width: auto; padding: 6px 15px;" onclick="startGame(2)">খেলুন</button>
+            </div>
+
+            <div class="game-card">
+                <div>
+                    <div class="game-title">৩. স্পিড ট্যাপ</div>
+                    <div class="game-desc">৩০ সেকেন্ডে দ্রুত ট্যাপ করুন</div>
+                </div>
+                <button class="btn btn-primary" style="width: auto; padding: 6px 15px;" onclick="startGame(3)">খেলুন</button>
+            </div>
+
+            <div class="game-card">
+                <div>
+                    <div class="game-title">৪. ম্যাথ স্প্রিন্ট</div>
+                    <div class="game-desc">সহজ অংক সমাধান করুন</div>
+                </div>
+                <button class="btn btn-primary" style="width: auto; padding: 6px 15px;" onclick="startGame(4)">খেলুন</button>
+            </div>
+
+            <!-- Active Game Screen Container -->
+            <div id="gameScreen" class="game-area" style="display: none;">
+                <h4 id="activeGameTitle" style="margin-bottom: 10px;">গেম চলছে...</h4>
+                <div id="gamePlayArea"></div>
+                <button class="btn btn-warning" onclick="closeGame()" style="margin-top: 15px;">গেম বন্ধ করুন</button>
+            </div>
+        </div>
+
+        <!-- Tab 2: Watch Ads -->
+        <div id="tab-watch" class="tab-content">
+            <div style="text-align: center; padding: 20px 10px;">
+                <h3 style="color: #38bdf8; margin-bottom: 10px;">একটানা ভিডিও দেখুন</h3>
+                <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 20px;">
+                    প্রতিটি রিওয়ার্ডেড ভিডিও অ্যাড সম্পূর্ণ শেষ করলে ১ টাকা যোগ হবে।
+                </p>
+                <div style="font-size: 50px; margin-bottom: 20px;">🎬</div>
+                <button class="btn btn-success" style="font-size: 18px; padding: 15px;" onclick="showAdmobRewardedAd()">
+                    ভিডিও অ্যাড দেখুন
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab 3: Withdraw -->
+        <div id="tab-withdraw" class="tab-content">
+            <h3 style="margin-bottom: 15px; font-size: 16px; color: #38bdf8;">পেমেন্ট উইথড্র রিকোয়েস্ট</h3>
+            
+            <div class="form-group">
+                <label>পেমেন্ট মেথড সিলেক্ট করুন</label>
+                <select id="paymentMethod" class="form-control">
+                    <option value="bKash">বিকাশ (bKash)</option>
+                    <option value="Nagad">নগদ (Nagad)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>বিকাশ/নগদ অ্যাকাউন্ট নম্বর</label>
+                <input type="number" id="withdrawAccount" class="form-control" placeholder="01XXXXXXXXX">
+            </div>
+
+            <div class="form-group">
+                <label>উইথড্র অ্যামাউন্ট (টাকা)</label>
+                <select id="withdrawAmountSelect" class="form-control">
+                    <option value="500">৫০০ টাকা</option>
+                    <option value="800">৮০০ টাকা</option>
+                    <option value="1500">১৫০০ টাকা</option>
+                    <option value="2500">২৫০০ টাকা</option>
+                </select>
+            </div>
+
+            <button class="btn btn-success" onclick="submitWithdrawal()">উইথড্র রিকোয়েস্ট পাঠান</button>
+        </div>
+
+        <!-- Tab 4: Profile & Support -->
+        <div id="tab-profile" class="tab-content">
+            <h3 style="margin-bottom: 15px; font-size: 16px; color: #38bdf8;">আপনার প্রোফাইল</h3>
+            
+            <div class="form-group">
+                <label>ইমেইল এড্রেস</label>
+                <input type="email" id="userEmail" class="form-control" placeholder="yourname@gmail.com">
+            </div>
+
+            <div class="form-group">
+                <label>ডিফল্ট বিকাশ/নগদ নম্বর</label>
+                <input type="number" id="savedPhone" class="form-control" placeholder="01XXXXXXXXX">
+            </div>
+
+            <button class="btn btn-primary" onclick="saveProfile()">প্রোফাইল সেভ করুন</button>
+
+            <hr style="border: 0.5px solid #334155; margin: 20px 0;">
+
+            <h4 style="font-size: 14px; margin-bottom: 5px; color: #38bdf8;">হেল্পলাইন ও সাপোর্টিং</h4>
+            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px; line-height: 1.4;">
+                যেকোনো প্রয়োজন বা তথ্যের জন্য হেল্পলাইনে ক্লিক করুন। অটোমেটিক জিমেইল ওপেন হয়ে মেসেজ পাঠানোর অপশন চলে আসবে।
+            </p>
+            <a id="supportEmailBtn" href="mailto:Rp9806578@gmail.com" class="btn btn-warning" style="display: block; text-align: center; text-decoration: none;">
+                ✉️ হেল্পলাইন (Rp9806578@gmail.com)
+            </a>
+        </div>
+    </main>
+</div>
+
+<!-- Modal Dialog for Ads & Confirmations -->
+<div id="adModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle" style="color: #38bdf8; margin-bottom: 10px;">বিজ্ঞাপন লোড হচ্ছে...</h3>
+        <p id="modalBody" style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">
+            অনুগ্রহ করে অপেক্ষা করুন। ১০ সেকেন্ড পর আপনার একাউন্টে রিওয়ার্ড যোগ হবে।
+        </p>
+        <div id="modalTimer" style="font-size: 24px; font-weight: bold; color: #f59e0b; margin-bottom: 15px;">10</div>
+        <button id="modalCloseBtn" class="btn btn-primary" style="display: none;" onclick="closeModal()">বন্ধ করুন</button>
+    </div>
+</div>
+
+<script>
+    // System Data & LocalStorage Setup
+    const ADMOB_AD_UNIT_ID = "ca-app-pub-7380822806111467/4260620611";
+
+    let state = {
+        balance: parseInt(localStorage.getItem('user_balance')) || 0,
+        email: localStorage.getItem('user_email') || '',
+        phone: localStorage.getItem('user_phone') || '',
+        pendingWithdraw: localStorage.getItem('pending_withdraw') === 'true'
+    };
+
+    function init() {
+        document.getElementById('userBalance').innerText = state.balance;
+        document.getElementById('userEmail').value = state.email;
+        document.getElementById('savedPhone').value = state.phone;
+        document.getElementById('withdrawAccount').value = state.phone;
+
+        if (state.pendingWithdraw) {
+            document.getElementById('processingNotice').style.display = 'block';
+        }
+    }
+
+    function updateBalance(amount) {
+        state.balance += amount;
+        localStorage.setItem('user_balance', state.balance);
+        document.getElementById('userBalance').innerText = state.balance;
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+
+        document.getElementById('tab-' + tabName).classList.add('active');
+        document.getElementById('nav-' + tabName).classList.add('active');
+    }
+
+    // Save Profile Information
+    function saveProfile() {
+        const email = document.getElementById('userEmail').value;
+        const phone = document.getElementById('savedPhone').value;
+
+        if (!email || !phone) {
+            alert("অনুগ্রহ করে ইমেইল এবং ফোন নাম্বার উভয়ই দিন।");
+            return;
+        }
+
+        state.email = email;
+        state.phone = phone;
+
+        localStorage.setItem('user_email', email);
+        localStorage.setItem('user_phone', phone);
+        document.getElementById('withdrawAccount').value = phone;
+
+        alert("প্রোফাইল সফলভাবে সেভ করা হয়েছে!");
+    }
+
+    // AdMob Bridge & Rewarded Ad System
+    function showAdmobRewardedAd() {
+        // Native Android Bridge Check
+        if (window.Android && typeof window.Android.showRewardedAd === 'function') {
+            window.Android.showRewardedAd(ADMOB_AD_UNIT_ID);
+        } else {
+            // Web Preview Simulation
+            showSimulatedAd();
+        }
+    }
+
+    // Callback called from Android Native App on Ad Completed
+    function onRewardedAdCompleted() {
+        updateBalance(1);
+        alert("অভিনন্দন! আপনি ১ টাকা রিওয়ার্ড পেয়েছেন।");
+    }
+
+    function showSimulatedAd() {
+        const modal = document.getElementById('adModal');
+        const timerEl = document.getElementById('modalTimer');
+        const closeBtn = document.getElementById('modalCloseBtn');
+        const titleEl = document.getElementById('modalTitle');
+        const bodyEl = document.getElementById('modalBody');
+
+        titleEl.innerText = "বিজ্ঞাপন চলছে...";
+        bodyEl.innerText = "রিওয়ার্ড পেতে ১০ সেকেন্ড ভিডিওটি মনোযোগ দিয়ে দেখুন।";
+        closeBtn.style.display = 'none';
+        modal.classList.add('active');
+
+        let left = 10;
+        timerEl.innerText = left;
+
+        let interval = setInterval(() => {
+            left--;
+            timerEl.innerText = left;
+            if (left <= 0) {
+                clearInterval(interval);
+                updateBalance(1);
+                titleEl.innerText = "রিওয়ার্ড অর্জিত হয়েছে!";
+                bodyEl.innerText = "আপনার অ্যাকাউন্টে ১ টাকা সফলভাবে যোগ হয়েছে।";
+                closeBtn.style.display = 'block';
+            }
+        }, 1000);
+    }
+
+    function closeModal() {
+        document.getElementById('adModal').classList.remove('active');
+    }
+
+    // Withdrawal Logic
+    function submitWithdrawal() {
+        const method = document.getElementById('paymentMethod').value;
+        const account = document.getElementById('withdrawAccount').value;
+        const amount = parseInt(document.getElementById('withdrawAmountSelect').value);
+
+        if (!account || account.length < 11) {
+            alert("অনুগ্রহ করে সঠিক ১১ ডিজিটের বিকাশ/নগদ নম্বর দিন।");
+            return;
+        }
+
+        if (state.balance < amount) {
+            alert("আপনার একাউন্টে পর্যাপ্ত ব্যালেন্স নেই! নির্বাচিত উইথড্র অ্যামাউন্ট: " + amount + " টাকা।");
+            return;
+        }
+
+        // Deduct Balance
+        updateBalance(-amount);
+
+        // Set Pending Status
+        state.pendingWithdraw = true;
+        localStorage.setItem('pending_withdraw', 'true');
+        document.getElementById('processingNotice').style.display = 'block';
+
+        alert(method + " নম্বর " + account + "-এ " + amount + " টাকার উইথড্রয়াল রিকোয়েস্ট সফলভাবে জমা হয়েছে। প্রসেস হতে ১০ দিন সময় লাগবে।");
+    }
+
+    // Mini Games Logic
+    let gameInterval;
+
+    function startGame(id) {
+        document.getElementById('gameScreen').style.display = 'block';
+        const container = document.getElementById('gamePlayArea');
+        const title = document.getElementById('activeGameTitle');
+
+        container.innerHTML = '';
+        if (gameInterval) clearInterval(gameInterval);
+
+        if (id === 1) {
+            title.innerText = "স্টার ক্যাচার";
+            container.innerHTML = `<p style="font-size:13px; margin-bottom:10px;">নিচের বাটনে ট্যাপ করে ১০টি তারা সংগ্রহ করুন!</p>
+                <div id="starCount" style="font-size: 20px; font-weight:bold; color:#f59e0b; margin-bottom:10px;">⭐ 0 / 10</div>
+                <button class="btn btn-primary" onclick="catchStar()">তারা ক্যাচ করুন!</button>`;
+        } else if (id === 2) {
+            title.innerText = "মেমোরি ম্যাচ";
+            container.innerHTML = `<p style="font-size:13px;">সবগুলো কার্ডে ক্লিক করে ইমোজি ম্যাচ শেষ করুন:</p>
+                <div class="grid-game" id="cardGrid"></div>`;
+            setupMemoryGame();
+        } else if (id === 3) {
+            title.innerText = "স্পিড ট্যাপ";
+            let clicks = 0;
+            container.innerHTML = `<p style="font-size:13px;">১০ সেকেন্ডে যতটা সম্ভব দ্রুত ট্যাপ করুন!</p>
+                <div id="clickCount" style="font-size: 22px; margin: 10px 0; color:#38bdf8;">ক্লিক: 0</div>
+                <button class="btn btn-success" onclick="speedTapClick()">ট্যাপ করুন!</button>`;
+        } else if (id === 4) {
+            title.innerText = "ম্যাথ স্প্রিন্ট";
+            setupMathGame();
+        }
+    }
+
+    let starScore = 0;
+    function catchStar() {
+        starScore++;
+        document.getElementById('starCount').innerText = "⭐ " + starScore + " / 10";
+        if (starScore >= 10) {
+            starScore = 0;
+            finishGameReward("স্টার ক্যাচার সম্পন্ন হয়েছে!");
+        }
+    }
+
+    function setupMemoryGame() {
+        const grid = document.getElementById('cardGrid');
+        const emojis = ['🍎', '🍎', '🍌', '🍌', '🍇', '🍇'];
+        emojis.sort(() => Math.random() - 0.5);
+
+        grid.innerHTML = '';
+        let matched = 0;
+        let selected = [];
+
+        emojis.forEach((emoji, index) => {
+            const card = document.createElement('div');
+            card.className = 'grid-card';
+            card.innerText = '❓';
+            card.onclick = () => {
+                if (card.innerText !== '❓' || selected.length >= 2) return;
+                card.innerText = emoji;
+                card.classList.add('flipped');
+                selected.push({ card, emoji });
+
+                if (selected.length === 2) {
+                    if (selected[0].emoji === selected[1].emoji) {
+                        matched += 2;
+                        selected = [];
+                        if (matched === emojis.length) {
+                            setTimeout(() => finishGameReward("মেমোরি ম্যাচ গেম জিতেছে!"), 500);
+                        }
+                    } else {
+                        setTimeout(() => {
+                            selected[0].card.innerText = '❓';
+                            selected[1].card.innerText = '❓';
+                            selected[0].card.classList.remove('flipped');
+                            selected[1].card.classList.remove('flipped');
+                            selected = [];
+                        }, 700);
+                    }
+                }
+            };
+            grid.appendChild(card);
+        });
+    }
+
+    let tapCount = 0;
+    let tapTimer;
+    function speedTapClick() {
+        if (tapCount === 0) {
+            tapTimer = setTimeout(() => {
+                if (tapCount >= 20) {
+                    finishGameReward("স্পিড ট্যাপ চ্যালেঞ্জ সফল হয়েছে!");
+                } else {
+                    alert("সময় শেষ! আপনি মাত্র " + tapCount + " বার ট্যাপ করতে পেরেছেন। ২০ বার চেষ্টা করুন।");
+                }
+                tapCount = 0;
+                document.getElementById('clickCount').innerText = "ক্লিক: 0";
+            }, 10000);
+        }
+        tapCount++;
+        document.getElementById('clickCount').innerText = "ক্লিক: " + tapCount;
+    }
+
+    function setupMathGame() {
+        const container = document.getElementById('gamePlayArea');
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
+        const ans = num1 + num2;
+
+        container.innerHTML = `
+            <p style="font-size:16px; margin-bottom:10px;">উত্তর দিন: <b>${num1} + ${num2} = ?</b></p>
+            <input type="number" id="mathAns" class="form-control" style="margin-bottom:10px;" placeholder="আপনার উত্তর">
+            <button class="btn btn-primary" onclick="checkMath(${ans})">সাবমিট</button>
+        `;
+    }
+
+    function checkMath(correctAns) {
+        const userAns = parseInt(document.getElementById('mathAns').value);
+        if (userAns === correctAns) {
+            finishGameReward("সঠিক উত্তর দেওয়া হয়েছে!");
+        } else {
+            alert("ভুল উত্তর! আবার চেষ্টা করুন।");
+            setupMathGame();
+        }
+    }
+
+    function finishGameReward(msg) {
+        closeGame();
+        alert(msg + " এখন রিওয়ার্ড নিতে একটি অ্যাড দেখুন।");
+        showAdmobRewardedAd();
+    }
+
+    function closeGame() {
+        document.getElementById('gameScreen').style.display = 'none';
+        if (gameInterval) clearInterval(gameInterval);
+    }
+
+    // Initialize Page
+    window.onload = init;
+</script>
+</body>
+  </html>
